@@ -47,6 +47,8 @@ const ACCOUNTS = ['PB-ALPHA', 'PB-BETA', 'FUND-01', 'HEDGE-A']
 const COUNTERPARTIES = ['NMR-US', 'GSCO', 'JPM-PB', 'MS-OTC', 'INTERNAL']
 const VENUES = ['MOCK', 'MOCK_ALT']
 
+// this is an order type, just not imported from client to avoid layer boundaries
+// #TODO: this should be in a shared type
 type OrderLike = {
   id: string
   clientOrderId: string
@@ -66,6 +68,7 @@ type OrderLike = {
   updatedAt: string
 }
 
+// each client gets its own connection stream state
 type ConnectionState = {
   seq: number
   orderCounter: number
@@ -89,6 +92,8 @@ function nextSequence(state: ConnectionState): number {
   return state.seq
 }
 
+// every emitted event includes these fields
+// built via envelope(state) so all events are shaped for client union types
 function envelope(state: ConnectionState) {
   return {
     sequence: nextSequence(state),
@@ -112,6 +117,7 @@ function createOrderId(n: number): string {
   return `ORD-SERVER-${String(n).padStart(4, '0')}`
 }
 
+// create realistic orders
 function generateMockOrder(state: ConnectionState): OrderLike {
   state.orderCounter += 1
   const now = isoNow()
@@ -144,6 +150,9 @@ function orderCreatedPayload(state: ConnectionState, order: OrderLike) {
   }
 }
 
+// LIFECYCLE EMITTERS
+
+// creates + stores order
 function emitCreated(state: ConnectionState) {
   const order = generateMockOrder(state)
   state.live.set(order.id, order)
@@ -155,6 +164,7 @@ function pickLiveOrder(state: ConnectionState): OrderLike | undefined {
   return [...state.live.values()][randInt(0, state.live.size - 1)]
 }
 
+// remofes live order
 function emitCancelled(state: ConnectionState) {
   const order = pickLiveOrder(state)
   if (!order) return emitCreated(state)
@@ -167,6 +177,7 @@ function emitCancelled(state: ConnectionState) {
   }
 }
 
+// rejects eligble live order
 function emitRejected(state: ConnectionState) {
   const order = pickLiveOrder(state)
   if (!order) return emitCreated(state)
@@ -180,6 +191,7 @@ function emitRejected(state: ConnectionState) {
   }
 }
 
+// picks a live order and emits partial patches
 function emitUpdated(state: ConnectionState) {
   const current = pickLiveOrder(state)
   if (!current) return emitCreated(state)
@@ -218,6 +230,7 @@ function emitUpdated(state: ConnectionState) {
   }
 }
 
+// uses weighted randonmness to choose event type
 function nextMockEvent(state: ConnectionState) {
   const r = Math.random()
   if (r < 0.08) return heartbeatPayload(state)
@@ -227,6 +240,7 @@ function nextMockEvent(state: ConnectionState) {
   if (r < 0.96) return emitCancelled(state)
   return emitUpdated(state)
 }
+
 
 wss.on('connection', (ws) => {
   const state: ConnectionState = { seq: 0, orderCounter: 0, live: new Map() }
