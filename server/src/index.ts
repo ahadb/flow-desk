@@ -2,6 +2,8 @@ import http from 'node:http'
 import express from 'express'
 import { WebSocket, WebSocketServer } from 'ws'
 
+import { persistBlotterStreamEvent } from './db/streamProjector.js'
+
 /** Must match client `BlotterStreamEvent` envelope — see client/src/features/blotter/types.ts */
 const WS_PATH = '/blotter-stream'
 const HEARTBEAT_MS = 4_000
@@ -230,6 +232,11 @@ function emitUpdated(state: ConnectionState) {
   }
 }
 
+function sendStreamPayload(ws: WebSocket, payload: object): void {
+  void persistBlotterStreamEvent(payload)
+  ws.send(JSON.stringify(payload))
+}
+
 // uses weighted randonmness to choose event type
 function nextMockEvent(state: ConnectionState) {
   const r = Math.random()
@@ -246,17 +253,17 @@ wss.on('connection', (ws) => {
   const state: ConnectionState = { seq: 0, orderCounter: 0, live: new Map() }
 
   if (ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify(emitCreated(state)))
+    sendStreamPayload(ws, emitCreated(state))
   }
 
   const timer = setInterval(() => {
     if (ws.readyState !== WebSocket.OPEN) return
-    ws.send(JSON.stringify(nextMockEvent(state)))
+    sendStreamPayload(ws, nextMockEvent(state))
   }, STREAM_TICK_MS)
 
   const heartbeatTimer = setInterval(() => {
     if (ws.readyState !== WebSocket.OPEN) return
-    ws.send(JSON.stringify(heartbeatPayload(state)))
+    sendStreamPayload(ws, heartbeatPayload(state))
   }, HEARTBEAT_MS)
 
   ws.on('close', () => {

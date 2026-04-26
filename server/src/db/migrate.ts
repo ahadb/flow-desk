@@ -14,9 +14,9 @@ type MigrationFile = {
 
 async function ensureMigrationsTable(): Promise<void> {
   await dbPool.query(`
-    create table if not exists schema_migrations (
-      name text primary key,
-      applied_at timestamptz not null default now()
+    CREATE TABLE IF NOT EXISTS schema_migrations (
+      name TEXT PRIMARY KEY,
+      applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `)
 }
@@ -34,19 +34,21 @@ async function readMigrations(): Promise<MigrationFile[]> {
 }
 
 async function appliedMigrationNames(): Promise<Set<string>> {
-  const result = await dbPool.query<{ name: string }>('select name from schema_migrations order by name asc')
+  const result = await dbPool.query<{ name: string }>(
+    'SELECT name FROM schema_migrations ORDER BY name ASC',
+  )
   return new Set(result.rows.map((row) => row.name))
 }
 
 async function applyMigration(migration: MigrationFile): Promise<void> {
   const client = await dbPool.connect()
   try {
-    await client.query('begin')
+    await client.query('BEGIN')
     await client.query(migration.sql)
-    await client.query('insert into schema_migrations(name) values ($1)', [migration.name])
-    await client.query('commit')
+    await client.query('INSERT INTO schema_migrations(name) VALUES ($1)', [migration.name])
+    await client.query('COMMIT')
   } catch (error) {
-    await client.query('rollback')
+    await client.query('ROLLBACK')
     throw error
   } finally {
     client.release()

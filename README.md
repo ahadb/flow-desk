@@ -85,9 +85,10 @@ To drive the workspace from the stream server instead of the in-browser mock, se
 ## Main todos
 
 - [x] Enrich mock stream by reusing the same data types and event shapes as the websocket/backend feed.
-- [ ] Configure backend data layer (Postgres, connection management, migrations baseline).
+- [x] Configure backend data layer (Postgres, connection management, migrations baseline).
+- [x] Add Postgres tables for audit and audit events (initial schema).
+- [x] Create `auditRepo`, `ordersRepo` and `streamProjector` to ingest event envelopes and dedupe safely into DB 
 - [ ] Configure API layer endpoints: `GET /orders`, `GET /orders/:id/audit`.
-- [ ] Add Postgres tables for audit and audit events (initial schema).
 - [ ] Implement audit trail tree view from API data (shape, transform to tree, render).
 - [ ] Configure master/detail view for order list and selected order context.
 
