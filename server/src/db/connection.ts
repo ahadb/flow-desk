@@ -23,7 +23,7 @@ export const dbPool = new Pool(buildPoolConfig())
 export async function checkDbConnection(): Promise<void> {
   const client = await dbPool.connect()
   try {
-    await client.query('select 1')
+    await client.query('SELECT 1')
   } finally {
     client.release()
   }
