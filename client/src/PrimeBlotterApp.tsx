@@ -1,4 +1,5 @@
 import {
+  CloseOutlined,
   DownOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -17,7 +18,7 @@ import { eodSchemaFacts, selectionSummaryFacts } from './features/insights/deter
 import { EodReportModal, SelectionSummaryModal } from './features/insights/InsightModals'
 import { filterOrdersByTextQuery } from './features/blotter/nlp/filterOrdersByTextQuery'
 import { orderId, type Order } from './features/blotter/types'
-import AuditTrailTable from './features/table/AuditTrailTable'
+import AuditTrailTable, { type AuditTrailTableProps } from './features/table/AuditTrailTable'
 import BlotterTable from './features/table/BlotterTable'
 import { Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -59,12 +60,15 @@ function readOrderFormOpen(): boolean {
 
 function PrimeBlotterApp() {
   const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([])
+  /** Row body click — audit trail; separate from checkbox `selectedRowKeys`. */
+  const [auditFocusKey, setAuditFocusKey] = useState<Key | null>(null)
   const [selectionModalOpen, setSelectionModalOpen] = useState(false)
   const [eodModalOpen, setEodModalOpen] = useState(false)
   const [nlpQuery, setNlpQuery] = useState('')
   const [amendModalOpen, setAmendModalOpen] = useState(false)
   const [orderFormOpen, setOrderFormOpen] = useState(readOrderFormOpen)
   const [topNavKey, setTopNavKey] = useState<string>('blotter')
+  const [ordersLoadErrorDismissed, setOrdersLoadErrorDismissed] = useState(false)
   useEffect(() => {
     try {
       localStorage.setItem(ORDER_FORM_OPEN_KEY, orderFormOpen ? '1' : '0')
@@ -76,6 +80,12 @@ function PrimeBlotterApp() {
   const { status: liveBootstrapStatus, error: liveBootstrapError } = useBlotterLiveBootstrap(USE_BLOTTER_WEBSOCKET)
   const blotterWsEnabled = USE_BLOTTER_WEBSOCKET && liveBootstrapStatus === 'ready'
   useBlotterWebSocketStream({ url: BLOTTER_WS_URL, enabled: blotterWsEnabled })
+
+  useEffect(() => {
+    if (liveBootstrapStatus !== 'error') {
+      setOrdersLoadErrorDismissed(false)
+    }
+  }, [liveBootstrapStatus])
   
   // # TODO: fallback
   // useBlotterMockStream({ enabled: !USE_BLOTTER_WEBSOCKET })
@@ -106,6 +116,51 @@ function PrimeBlotterApp() {
     () => selectedOrders.filter(isOrderOpenForAction),
     [selectedOrders],
   )
+
+  useEffect(() => {
+    if (auditFocusKey == null) return
+    if (!ordersById[orderId(String(auditFocusKey))]) {
+      setAuditFocusKey(null)
+    }
+  }, [auditFocusKey, ordersById])
+
+  const auditSummaryLine = useMemo(() => {
+    if (auditFocusKey == null) return 'None'
+    const raw = String(auditFocusKey)
+    const oid = orderId(raw)
+    const o = ordersById[oid]
+    const idShort = raw.length > 22 ? `${raw.slice(0, 18)}…` : raw
+    if (o) return `${o.symbol} · ${idShort}`
+    return idShort
+  }, [auditFocusKey, ordersById])
+
+  const auditSummaryTitle = useMemo(() => {
+    if (auditFocusKey == null) return 'No row focused for audit'
+    const raw = String(auditFocusKey)
+    const o = ordersById[orderId(raw)]
+    return o ? `${o.symbol} · ${raw}` : raw
+  }, [auditFocusKey, ordersById])
+
+  const auditCheckedDiverge = useMemo(() => {
+    if (auditFocusKey == null || selectedRowKeys.length === 0) return false
+    const f = String(auditFocusKey)
+    return !selectedRowKeys.some((k) => String(k) === f)
+  }, [auditFocusKey, selectedRowKeys])
+
+  const auditTrailProps = useMemo((): AuditTrailTableProps => {
+    if (auditFocusKey == null) {
+      return {
+        state: 'empty',
+        message: 'Click an order row (outside the checkbox column) to view its audit trail.',
+      }
+    }
+    const rawId = String(auditFocusKey)
+    return {
+      state: 'single',
+      orderId: rawId,
+      order: ordersById[orderId(rawId)],
+    }
+  }, [auditFocusKey, ordersById])
 
   const amendTargetOrder = selectedOpenOrders.length === 1 ? selectedOpenOrders[0]! : null
 
@@ -145,6 +200,11 @@ function PrimeBlotterApp() {
       ? lastBeat
       : d.toLocaleTimeString(undefined, { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })
   }, [lastBeat])
+
+  const ordersLoadErrorText =
+    USE_BLOTTER_WEBSOCKET && liveBootstrapStatus === 'error'
+      ? `Could not load orders - ${(liveBootstrapError ?? 'Unknown error').trim().replace(/\s+/g, ' ')}`
+      : null
 
   return (
     <Layout className="app-layout">
@@ -189,13 +249,19 @@ function PrimeBlotterApp() {
         {USE_BLOTTER_WEBSOCKET && liveBootstrapStatus === 'loading' ? (
           <Alert type="info" showIcon message="Loading orders…" className="app-bootstrap-alert" />
         ) : null}
-        {USE_BLOTTER_WEBSOCKET && liveBootstrapStatus === 'error' ? (
+        {ordersLoadErrorText && !ordersLoadErrorDismissed ? (
           <Alert
             type="error"
             showIcon
-            message="Could not load orders"
-            description={liveBootstrapError ?? 'Unknown error'}
-            className="app-bootstrap-alert"
+            closable
+            closeIcon={<CloseOutlined />}
+            onClose={() => setOrdersLoadErrorDismissed(true)}
+            className="app-bootstrap-alert app-bootstrap-alert--single-line"
+            message={
+              <span className="app-bootstrap-alert__one-line" title={ordersLoadErrorText}>
+                {ordersLoadErrorText}
+              </span>
+            }
           />
         ) : null}
         <Card className="app-card app-card--stats" bordered={false}>
@@ -345,7 +411,7 @@ function PrimeBlotterApp() {
             </Typography.Title>
             <div className="order-table-heading-actions">
               <Typography.Text type="secondary" className="order-table-heading-actions__hint">
-                Open orders only.
+                Open orders only. Checks = bulk actions; row click = audit. Footer shows Checked vs Audit row.
               </Typography.Text>
               <Space wrap className="order-table-heading-actions__buttons" size={6}>
                 <Button
@@ -384,17 +450,31 @@ function PrimeBlotterApp() {
 
           <section className="order-table-section" aria-label="Order Table">
             <Card className="app-card">
+              {auditCheckedDiverge ? (
+                <Alert
+                  type="info"
+                  showIcon
+                  className="blotter-selection-diverge-alert"
+                  message="Audit row is not in your checked set — checks drive bulk actions; row click drives the audit trail."
+                />
+              ) : null}
               <BlotterTable
                 key={blotterTableMountKey}
                 data={filteredOrders}
                 selectedRowKeys={selectedRowKeys}
                 onSelectedRowKeysChange={setSelectedRowKeys}
+                auditFocusKey={auditFocusKey}
+                onAuditFocusKeyChange={setAuditFocusKey}
+                auditSummaryLine={auditSummaryLine}
+                auditSummaryTitle={auditSummaryTitle}
                 onRowContextSummarize={(orderId) => {
                   setSelectedRowKeys([orderId])
+                  setAuditFocusKey(orderId)
                   setSelectionModalOpen(true)
                 }}
                 onRowContextCancel={async (orderId) => {
                   setSelectedRowKeys([orderId])
+                  setAuditFocusKey(orderId)
                   try {
                     const n = await cancelOrders([orderId])
                     if (n === 0) {
@@ -408,6 +488,7 @@ function PrimeBlotterApp() {
                 }}
                 onRowContextAmend={(orderId) => {
                   setSelectedRowKeys([orderId])
+                  setAuditFocusKey(orderId)
                   setAmendModalOpen(true)
                 }}
               />
@@ -422,7 +503,7 @@ function PrimeBlotterApp() {
             </Typography.Title>
           </div>
           <Card className="app-card app-card--audit" bordered={false}>
-            <AuditTrailTable />
+            <AuditTrailTable {...auditTrailProps} />
           </Card>
         </section>
       </Layout.Content>
