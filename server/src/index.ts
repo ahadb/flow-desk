@@ -1,7 +1,9 @@
+import './env/bootstrap.js'
 import http from 'node:http'
 
 import express from 'express'
 
+import { nlpRouter } from './api/nlpRouter.js'
 import { ordersRouter } from './api/ordersRouter.js'
 import { attachBlotterStream, WS_PATH } from './realtime/blotterStream.js'
 
@@ -25,6 +27,7 @@ app.get(WS_PATH, (_req, res) => {
 })
 
 app.use('/orders', ordersRouter)
+app.use('/nlp', nlpRouter)
 
 app.use(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Express error arity
@@ -43,5 +46,6 @@ server.listen(PORT, () => {
   console.log(`  GET  http://localhost:${PORT}/orders`)
   console.log(`  GET  http://localhost:${PORT}/orders/:id`)
   console.log(`  GET  http://localhost:${PORT}/orders/:id/audit`)
+  console.log(`  POST http://localhost:${PORT}/nlp/parse-order-filter`)
   console.log(`  WS   ws://localhost:${PORT}${WS_PATH}`)
 })
