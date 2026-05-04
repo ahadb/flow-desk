@@ -30,6 +30,7 @@ A **demo workspace** with a marketing **landing page**, a **dark Ant Design** sh
 
 - Node.js + TypeScript (run with **tsx**)  
 - Express 5 (HTTP API: `GET /orders`, health, etc.)  
+- **OpenAI** official Node SDK for **`POST /nlp/parse-order-filter`** (NL → `ParsedOrderFilter` JSON, validated with **Zod** in [`shared/nlp/parsedOrderFilter.ts`](shared/nlp/parsedOrderFilter.ts))  
 - **ws** (WebSocket blotter stream)  
 - PostgreSQL (**`pg`**) for orders + audit event persistence  
 
@@ -65,7 +66,9 @@ Current behavior in `server/src/index.ts`:
 
 `GET /blotter-stream` returns a JSON hint (streams are **WebSocket**, not a normal HTTP page).
 
-Dev proxy: with client `npm run dev`, Vite proxies **`/blotter-stream`** and **`/orders`** to **`127.0.0.1:8000`** (same as the server’s default **`PORT`**). If you run the API on another port, set **`PORT`** when starting the server **and** point `vite.config.ts` `server.proxy` at that port.
+Dev proxy: with client `npm run dev`, Vite proxies **`/blotter-stream`**, **`/orders`**, and **`/nlp`** to **`127.0.0.1:8000`** (same as the server’s default **`PORT`**). If you run the API on another port, set **`PORT`** when starting the server **and** point `vite.config.ts` `server.proxy` at that port.
+
+**NLP filter parsing (OpenAI):** set **`OPENAI_API_KEY`** (and optionally **`OPENAI_MODEL`**, default `gpt-4o-mini`) in a **server** env file or repo-root **`.env`** (see [`.env.example`](.env.example)). The server exposes **`POST /nlp/parse-order-filter`** with JSON body `{ "text": "…" }` and returns `{ "filter": { … } }` validated against the shared Zod `ParsedOrderFilter` schema. Without a key, that route responds **503** with a clear message.
 
 ```bash
 cd server && npm install
@@ -89,8 +92,8 @@ To drive the workspace from the stream server instead of the in-browser mock, se
 - [x] **Order ticket & layout** — Ant `Form` + validation, collapsible order column (preference persisted in `localStorage`), stats strip  
 - [x] **Order submit form** — `OrderEntryForm` ticket (`client/src/features/order-entry/`) with validation and submit into the blotter / stream ingestion path  
 - [x] **`GET /orders/:id/audit`** — HTTP API returning persisted `order_audit_events` for an order (for bottom audit tree / detail)  
-- [ ] **Configure AI filter** — NLP-style filter on the stats strip (`filterOrdersByTextQuery` + query state); wire to real NLP / gateway config when ready  
-- [ ] **Audit trail (mocked for now)** — tree-table style audit surface for hierarchy previews (mock tree-table UI) plus stream-derived audit domain in store/mappers  
+- [x] **Audit trail (mocked for now)** — tree-table style audit surface for hierarchy previews (mock tree-table UI) plus stream-derived audit domain in store/mappers
+- [ ] **Configure AI filter** — stats strip still uses local `filterOrdersByTextQuery`; **`POST /nlp/parse-order-filter`** + [`fetchParsedOrderFilterFromNlp`](client/src/features/blotter/api/parseOrderFilterNlpApi.ts) are ready to wire OpenAI output into that flow when you hook the UI  
 
 ## Main todos
 
