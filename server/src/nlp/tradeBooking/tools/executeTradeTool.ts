@@ -1,4 +1,4 @@
-import { submitOrderBodySchema } from '../../../../../shared/nlp/submitOrderBody.js'
+import { submitOrderBodySchema } from '@flowdesk/shared/nlp/submitOrderBody.js'
 import { insertAgentAuditLogFireAndForget } from '../../../db/repos/agentAuditRepo.js'
 import { createOrderFromValidatedSubmit } from '../../../orders/createOrderFromValidatedSubmit.js'
 import { openaiModel } from '../../openaiClient.js'

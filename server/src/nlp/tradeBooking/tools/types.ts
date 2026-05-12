@@ -1,4 +1,4 @@
-import type { ParsedTradeIntent, StepLog, TradeBookingDefaults } from '../../../../../shared/nlp/tradeBookingAgent.js'
+import type { ParsedTradeIntent, StepLog, TradeBookingDefaults } from '@flowdesk/shared/nlp/tradeBookingAgent.js'
 import type { OrderRow } from '../../../db/models.js'
 
 export type ToolJsonResult = Record<string, unknown> & {

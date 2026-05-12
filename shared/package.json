@@ -1,0 +1,21 @@
+{
+  "name": "@flowdesk/shared",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.2"
+  },
+  "exports": {
+    "./nlp/breachInsight.js": "./dist/nlp/breachInsight.js",
+    "./nlp/parsedOrderFilter.js": "./dist/nlp/parsedOrderFilter.js",
+    "./nlp/submitOrderBody.js": "./dist/nlp/submitOrderBody.js",
+    "./nlp/tradeBookingAgent.js": "./dist/nlp/tradeBookingAgent.js"
+  }
+}

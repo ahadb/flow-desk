@@ -68,7 +68,7 @@ Current behavior in `server/src/index.ts`:
 
 Dev proxy: with client `npm run dev`, Vite proxies **`/blotter-stream`**, **`/orders`**, and **`/nlp`** to **`127.0.0.1:8000`** (same as the server’s default **`PORT`**). If you run the API on another port, set **`PORT`** when starting the server **and** point `vite.config.ts` `server.proxy` at that port.
 
-**NLP filter parsing (OpenAI):** set **`OPENAI_API_KEY`** (and optionally **`OPENAI_MODEL`**, default `gpt-4o-mini`) in a **server** env file or repo-root **`.env`** (see [`.env.example`](.env.example)). The server exposes **`POST /nlp/parse-order-filter`** with JSON body `{ "text": "…" }` and returns `{ "filter": { … } }` validated against the shared Zod `ParsedOrderFilter` schema. Without a key, that route responds **503** with a clear message.
+**NLP filter parsing (OpenAI):** set **`OPENAI_API_KEY`** (and optionally **`OPENAI_MODEL`**, default `gpt-4o-mini`) in the repo-root **`.env`** (see [`.env.example`](.env.example)). The server exposes **`POST /nlp/parse-order-filter`** with JSON body `{ "text": "…" }` and returns `{ "filter": { … } }` validated against the shared Zod `ParsedOrderFilter` schema. Without a key, that route responds **503** with a clear message.
 
 ```bash
 cd server && npm install
@@ -80,6 +80,10 @@ curl http://localhost:8000/health
 ```
 
 From the repo root you can run **`npm run dev:server`** (same as running `npm run dev` inside `server/`). Override port with **`PORT`** if needed, and keep Vite’s proxy target in sync.
+
+### Docker (API only)
+
+From the repo root: **`npm run docker:api:build`** then **`npm run docker:api:run`** (uses **`--env-file .env`** and **`-e PORT=8080`** so a root **`.env`** that sets **`PORT=8000`** for local dev does not break the **`18080:8080`** publish mapping). The image builds **`@flowdesk/shared`** and the server to **`dist/`** and runs **`node dist/index.js`**. See root **`Dockerfile`** and [server/README.md](server/README.md). To compile locally without Docker: **`npm run build:api`** from the repo root.
 
 To drive the workspace from the stream server instead of the in-browser mock, set **`VITE_BLOTTER_WS_URL`** (see [`.env.example`](.env.example)), e.g. `ws://127.0.0.1:8000/blotter-stream`, or use the Vite dev proxy with **`ws://127.0.0.1:5173/blotter-stream`** while **`npm run dev`** and **`npm run dev:server`** are both running.
 

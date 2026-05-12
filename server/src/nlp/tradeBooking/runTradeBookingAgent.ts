@@ -1,6 +1,6 @@
 import type OpenAI from 'openai'
 
-import type { StepLog, TradeBookingRequest, TradeBookingResponse } from '../../../../shared/nlp/tradeBookingAgent.js'
+import type { StepLog, TradeBookingRequest, TradeBookingResponse } from '@flowdesk/shared/nlp/tradeBookingAgent.js'
 import { orderRowToJson } from '../../api/orderDto.js'
 import { insertAgentAuditLogFireAndForget } from '../../db/repos/agentAuditRepo.js'
 import { getOpenAIClient, openaiModel } from '../openaiClient.js'

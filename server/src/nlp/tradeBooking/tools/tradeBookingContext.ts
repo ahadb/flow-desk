@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'
 
-import type { TradeBookingDefaults } from '../../../../../shared/nlp/tradeBookingAgent.js'
+import type { TradeBookingDefaults } from '@flowdesk/shared/nlp/tradeBookingAgent.js'
 
 import { initStepLogs, type TradeBookingToolContext } from './types.js'
 

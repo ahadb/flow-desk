@@ -2,8 +2,8 @@ import { randomUUID } from 'node:crypto'
 
 import { Router, type Request, type Response } from 'express'
 
-import { breachInsightRequestSchema } from '../../../shared/nlp/breachInsight.js'
-import { tradeBookingRequestSchema } from '../../../shared/nlp/tradeBookingAgent.js'
+import { breachInsightRequestSchema } from '@flowdesk/shared/nlp/breachInsight.js'
+import { tradeBookingRequestSchema } from '@flowdesk/shared/nlp/tradeBookingAgent.js'
 import { insertAgentAuditLogFireAndForget, listAgentDecisionsRecent } from '../db/repos/agentAuditRepo.js'
 import { generateBreachInsight } from '../nlp/generateBreachInsight.js'
 import { getOpenAIClient, openaiModel } from '../nlp/openaiClient.js'

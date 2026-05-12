@@ -1,5 +1,5 @@
 import { priceBandHalfWidth, referencePriceForSymbol } from './constants.js'
-import type { ParsedTradeIntent } from '../../../../../shared/nlp/tradeBookingAgent.js'
+import type { ParsedTradeIntent } from '@flowdesk/shared/nlp/tradeBookingAgent.js'
 import type { ToolJsonResult } from './types.js'
 
 function withinBand(price: number, ref: number): boolean {

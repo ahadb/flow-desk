@@ -499,6 +499,10 @@ a.page-header-brand--link:hover .page-header-title {
   font-size: 13px;
 }
 
+.stats-ai-strip .stats-nlp-input.ant-input::placeholder {
+  color: rgba(255, 255, 255, 0.38);
+}
+
 .stats-nlp-apply-row {
   display: flex;
   flex-direction: row;
@@ -513,7 +517,7 @@ a.page-header-brand--link:hover .page-header-title {
   min-width: 0;
 }
 
-/* Match input (32px) + neutral gray chrome like the filter field */
+/* Match input (32px); fill/border with desk audit export / segmented */
 .stats-ai-strip .stats-nlp-apply-row .stats-nlp-input.ant-input {
   height: 32px;
   box-sizing: border-box;
@@ -631,23 +635,45 @@ a.page-header-brand--link:hover .page-header-title {
   color: rgba(255, 255, 255, 0.42);
 }
 
-/* allowClear wraps input — neutral gray focus */
-.stats-ai-strip .ant-input-affix-wrapper,
+/* Same panel fill as desk audit export button / segmented track */
+.stats-ai-strip .ant-input-affix-wrapper {
+  background: rgba(0, 0, 0, 0.35) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+.stats-ai-strip .ant-input-affix-wrapper .ant-input {
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
 .stats-ai-strip .stats-nlp-input.ant-input {
-  border-color: rgba(255, 255, 255, 0.12) !important;
+  background: rgba(0, 0, 0, 0.35) !important;
+  color: rgba(255, 255, 255, 0.88) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
 }
 
 .stats-ai-strip .ant-input-affix-wrapper:hover,
 .stats-ai-strip .stats-nlp-input.ant-input:hover {
   border-color: rgba(255, 255, 255, 0.22) !important;
+  background: rgba(0, 0, 0, 0.35) !important;
+}
+
+.stats-ai-strip .ant-input-affix-wrapper:hover .ant-input {
+  background: transparent !important;
 }
 
 .stats-ai-strip .ant-input-affix-wrapper-focused,
 .stats-ai-strip .ant-input-affix-wrapper:focus-within,
 .stats-ai-strip .stats-nlp-input.ant-input:focus,
 .stats-ai-strip .stats-nlp-input.ant-input-focused {
+  background: rgba(0, 0, 0, 0.35) !important;
   border-color: rgba(255, 255, 255, 0.4) !important;
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1) !important;
+}
+
+.stats-ai-strip .ant-input-affix-wrapper-focused .ant-input,
+.stats-ai-strip .ant-input-affix-wrapper:focus-within .ant-input {
+  background: transparent !important;
 }
 
 .ai-tile__buttons {

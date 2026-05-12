@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 
-import type { ParsedTradeIntent } from '../../../../../shared/nlp/tradeBookingAgent.js'
+import type { ParsedTradeIntent } from '@flowdesk/shared/nlp/tradeBookingAgent.js'
 import { maxOrderQuantity, priceBandHalfWidth } from './constants.js'
 import { validatePriceForTrade } from './validatePrice.js'
 import { validateRiskForTrade } from './validateRisk.js'

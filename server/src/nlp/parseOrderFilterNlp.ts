@@ -1,4 +1,4 @@
-import { safeParseParsedOrderFilter, type ParsedOrderFilter } from '../../../shared/nlp/parsedOrderFilter.js'
+import { safeParseParsedOrderFilter, type ParsedOrderFilter } from '@flowdesk/shared/nlp/parsedOrderFilter.js'
 import { getOpenAIClient, openaiModel } from './openaiClient.js'
 
 const SYSTEM_PROMPT = `You convert natural-language **order blotter filter** requests into one JSON object the UI will use to narrow rows.
