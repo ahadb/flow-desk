@@ -3,7 +3,7 @@ import {
   breachInsightRequestSchema,
   type BreachInsightOutput,
   type BreachInsightRequest,
-} from '../../../shared/nlp/breachInsight.js'
+} from '@flowdesk/shared/nlp/breachInsight.js'
 import { getOpenAIClient, openaiModel } from './openaiClient.js'
 
 const SYSTEM_PROMPT = `You are a senior trading desk risk assistant.

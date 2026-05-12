@@ -5,7 +5,7 @@ import { listAgentAuditLogsByOrderId, type AgentAuditLogRow } from '../db/repos/
 import { listAuditEventsByOrderId } from '../db/repos/auditRepo.js'
 import { findOrderById, listOrders } from '../db/repos/ordersRepo.js'
 import { createOrderFromValidatedSubmit } from '../orders/createOrderFromValidatedSubmit.js'
-import { submitOrderBodySchema } from '../../../shared/nlp/submitOrderBody.js'
+import { submitOrderBodySchema } from '@flowdesk/shared/nlp/submitOrderBody.js'
 
 import { orderRowToJson } from './orderDto.js'
 

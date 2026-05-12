@@ -1,4 +1,4 @@
-import { parsedTradeIntentSchema, type ParsedTradeIntent } from '../../../../../shared/nlp/tradeBookingAgent.js'
+import { parsedTradeIntentSchema, type ParsedTradeIntent } from '@flowdesk/shared/nlp/tradeBookingAgent.js'
 import { getOpenAIClient, openaiModel } from '../../openaiClient.js'
 
 const SYSTEM_PROMPT = `You extract a **stock order intent** from the user's English into one JSON object.

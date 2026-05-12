@@ -6,10 +6,11 @@
     "moduleResolution": "NodeNext",
     "strict": true,
     "skipLibCheck": true,
-    "noEmit": true,
     "verbatimModuleSyntax": true,
-    "esModuleInterop": true,
-    "types": ["node"]
+    "declaration": true,
+    "declarationMap": true,
+    "rootDir": ".",
+    "outDir": "dist"
   },
-  "include": ["src/**/*.ts"]
+  "include": ["nlp/**/*.ts"]
 }

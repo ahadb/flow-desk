@@ -2,6 +2,8 @@
 
 Express + WebSocket mock stream server, with Postgres connection scaffolding.
 
+The server imports **`@flowdesk/shared`** (`file:../shared`). That package resolves to compiled files under **`shared/dist/`**. After a fresh clone, from the **repo root** run **`npm run build:api`** once (or `npm run build --prefix shared` before your first `npm run dev` in `server/`). Otherwise TypeScript and Node may not find the shared modules.
+
 ## 1) Start Postgres
 
 Make sure Postgres is running locally on `127.0.0.1:5432`.
@@ -47,11 +49,11 @@ npm run db:migrate
 
 ## 4) Configure app connection
 
-Set env vars before starting the server:
+Set env vars in the **repo-root `.env`** only (same file Vite uses). See `../.env.example` for the full list.
 
 ```bash
 cp ../.env.example ../.env
-# then set at least:
+# edit ../.env — at minimum set DATABASE_URL, e.g.:
 # DATABASE_URL=postgres://flowdesk_app:change_me@127.0.0.1:5432/flowdesk
 ```
 
@@ -70,6 +72,29 @@ Optional: run on a non-default port (then point Vite’s `server.proxy` at the s
 ```bash
 PORT=3001 npm run dev
 ```
+
+## Docker (API image)
+
+From the **repo root** (needs `shared/` + `server/` — see root `Dockerfile`):
+
+```bash
+docker build -t flowdesk-api .
+docker run --rm -p 18080:8080 --env-file .env -e PORT=8080 flowdesk-api
+```
+
+The container listens on **`PORT`** (default **8080** for Cloud Run parity). Map host **`18080` → `8080`** as above (avoids colliding with a local dev server on **8000**), then:
+
+```bash
+curl http://localhost:18080/health
+```
+
+One-off migrations inside the same image (compiled `dist/`; no tsx):
+
+```bash
+docker run --rm --env-file .env flowdesk-api node dist/db/migrate.js
+```
+
+Local compile before Docker (optional sanity check): from repo root, `npm run build:api`. NPM shortcuts: `npm run docker:api:build`, `npm run docker:api:run`.
 
 ## Quick checks
 

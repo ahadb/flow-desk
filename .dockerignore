@@ -1,0 +1,19 @@
+# API image build context (repo root)
+.git
+.github
+.cursor
+client
+dist
+node_modules
+**/node_modules
+server/node_modules
+shared/node_modules
+shared/dist
+.env
+.env.*
+!.env.example
+**/*.md
+coverage
+.nyc_output
+**/.DS_Store
+**/*.log

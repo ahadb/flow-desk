@@ -4,6 +4,5 @@ import { fileURLToPath } from 'node:url'
 import { config as loadEnv } from 'dotenv'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-/** Repo-root `.env` then `server/.env` (latter overrides). Run before any other server imports that read `process.env`. */
+/** Canonical local env: repo-root `.env` only (same file Vite uses via `envDir`). */
 loadEnv({ path: path.resolve(__dirname, '../../../.env') })
-loadEnv({ path: path.resolve(__dirname, '../../.env'), override: true })

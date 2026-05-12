@@ -1,4 +1,4 @@
-import type { ParsedTradeIntent, TradeBookingDefaults } from '../../../../../shared/nlp/tradeBookingAgent.js'
+import type { ParsedTradeIntent, TradeBookingDefaults } from '@flowdesk/shared/nlp/tradeBookingAgent.js'
 
 /** Build POST /orders body fields from parsed intent + request defaults (before `submitOrderBodySchema`). */
 export function mergeIntentWithDefaults(intent: ParsedTradeIntent, defaults?: TradeBookingDefaults): Record<string, unknown> {
